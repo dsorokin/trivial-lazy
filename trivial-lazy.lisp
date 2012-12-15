@@ -5,7 +5,7 @@
 
 (defpackage :trivial-lazy
   (:use :cl :bordeaux-threads)
-  (:nicknames :lazy)
+  (:nicknames :tlazy)
   (:export #:memo
            #:*memo-thread-safe*
            #:delay
