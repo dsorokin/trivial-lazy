@@ -7,14 +7,19 @@
   (:use :cl :bordeaux-threads)
   (:nicknames :lazy)
   (:export #:memo
+           #:*memo-thread-safe*
            #:delay
            #:force))
 
 (in-package :trivial-lazy)
 
-(defparameter *memo-lock* (make-lock "MEMO"))
+(defparameter *memo-lock* (make-lock "MEMO")
+  "The global lock.")
 
-(defun memo (function &key (thread-safe nil))
+(defparameter *memo-thread-safe* nil
+  "Defines whether the memo is thread-safe.")
+
+(defun memo (function &key (thread-safe *memo-thread-safe*))
   "Memoize the specified function."
   (let ((x-defined nil)
         (x nil))
@@ -35,7 +40,7 @@
                     x-defined t)
               x-next))))))))
 
-(defmacro delay (exp &key (thread-safe nil))
+(defmacro delay (exp &key (thread-safe *memo-thread-safe*))
   "Delay the expression."
   `(memo #'(lambda() ,exp) :thread-safe ,thread-safe))
 
