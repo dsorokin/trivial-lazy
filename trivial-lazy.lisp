@@ -40,9 +40,11 @@
                     x-defined t)
               x-next))))))))
 
-(defmacro delay (exp &key (thread-safe *memo-thread-safe*))
+(defmacro delay (exp &key (thread-safe *memo-thread-safe* thread-safe-p))
   "Delay the expression."
-  `(memo #'(lambda() ,exp) :thread-safe ,thread-safe))
+  (if thread-safe-p
+      `(memo (lambda () ,exp) :thread-safe ,thread-safe)
+    `(memo (lambda () ,exp))))
 
 (defun force (delayed-exp)
   "Force to return the value of the delayed expression."
