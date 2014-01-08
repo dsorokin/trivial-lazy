@@ -9,18 +9,32 @@
   (:export #:memo
            #:*memo-thread-safe*
            #:delay
-           #:force))
+           #:force
+           #:thunk))
 
 (in-package :trivial-lazy)
+
+(deftype thunk (&optional result)
+  `(function () ,result))
 
 (defparameter *memo-lock* (make-lock "MEMO")
   "The global lock.")
 
-(defparameter *memo-thread-safe* nil
-  "Defines whether the memo is thread-safe.")
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (declaim (type boolean *memo-thread-safe*))
+  (defparameter *memo-thread-safe* nil
+    "Defines whether the memo is thread-safe."))
 
+(declaim (ftype (function ((thunk) &key (:thread-safe boolean))
+                          (values (thunk)))
+                memo))
+(declaim (inline memo))
 (defun memo (function &key (thread-safe *memo-thread-safe*))
   "Memoize the specified function."
+  (declare (optimize (debug 0)
+                     (safety 0)
+                     (speed 3)
+                     (space 3)))
   (let ((x-defined nil)
         (x nil))
     (lambda ()
@@ -46,6 +60,7 @@
       `(memo (lambda () ,exp) :thread-safe ,thread-safe)
     `(memo (lambda () ,exp))))
 
+(declaim (inline force))
 (defun force (delayed-exp)
   "Force to return the value of the delayed expression."
   (funcall delayed-exp))
