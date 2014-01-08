@@ -16,9 +16,10 @@
 (defparameter *memo-lock* (make-lock "MEMO")
   "The global lock.")
 
-(declaim (type boolean *memo-thread-safe*))
-(defparameter *memo-thread-safe* nil
-  "Defines whether the memo is thread-safe.")
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (declaim (type boolean *memo-thread-safe*))
+  (defparameter *memo-thread-safe* nil
+    "Defines whether the memo is thread-safe."))
 
 (declaim (ftype (function ((function) &key (:thread-safe boolean))
                           (values (function () t)))
@@ -26,6 +27,10 @@
 (declaim (inline memo))
 (defun memo (function &key (thread-safe *memo-thread-safe*))
   "Memoize the specified function."
+  (declare (optimize (debug 0)
+                     (safety 0)
+                     (speed 3)
+                     (space 3)))
   (let ((x-defined nil)
         (x nil))
     (lambda ()
@@ -51,6 +56,7 @@
       `(memo (lambda () ,exp) :thread-safe ,thread-safe)
     `(memo (lambda () ,exp))))
 
+(declaim (inline force))
 (defun force (delayed-exp)
   "Force to return the value of the delayed expression."
   (funcall delayed-exp))
