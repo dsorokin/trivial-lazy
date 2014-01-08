@@ -9,9 +9,13 @@
   (:export #:memo
            #:*memo-thread-safe*
            #:delay
-           #:force))
+           #:force
+           #:thunk))
 
 (in-package :trivial-lazy)
+
+(deftype thunk (&optional result)
+  `(function () ,result))
 
 (defparameter *memo-lock* (make-lock "MEMO")
   "The global lock.")
@@ -21,8 +25,8 @@
   (defparameter *memo-thread-safe* nil
     "Defines whether the memo is thread-safe."))
 
-(declaim (ftype (function ((function) &key (:thread-safe boolean))
-                          (values (function () t)))
+(declaim (ftype (function ((thunk) &key (:thread-safe boolean))
+                          (values (thunk)))
                 memo))
 (declaim (inline memo))
 (defun memo (function &key (thread-safe *memo-thread-safe*))
