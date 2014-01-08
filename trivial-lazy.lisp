@@ -16,9 +16,14 @@
 (defparameter *memo-lock* (make-lock "MEMO")
   "The global lock.")
 
+(declaim (type boolean *memo-thread-safe*))
 (defparameter *memo-thread-safe* nil
   "Defines whether the memo is thread-safe.")
 
+(declaim (ftype (function ((function) &key (:thread-safe boolean))
+                          (values (function () t)))
+                memo))
+(declaim (inline memo))
 (defun memo (function &key (thread-safe *memo-thread-safe*))
   "Memoize the specified function."
   (let ((x-defined nil)
