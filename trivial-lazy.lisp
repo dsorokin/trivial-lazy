@@ -9,7 +9,8 @@
   (:export #:memo
            #:*memo-thread-safe*
            #:delay
-           #:force))
+           #:force
+           #:force-safely))
 
 (in-package :trivial-lazy)
 
@@ -49,3 +50,9 @@
 (defun force (delayed-exp)
   "Force to return the value of the delayed expression."
   (funcall delayed-exp))
+
+(defun force-safely (delayed-exp?)
+  "Force safely to return the value of the delayed expression."
+  (if (functionp delayed-exp?)
+      (funcall delayed-exp?)
+      delayed-exp?))
