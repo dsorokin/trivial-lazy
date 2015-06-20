@@ -6,6 +6,7 @@
 (defsystem :trivial-lazy
   :version "0.1"
   :description "Trivial lazy macros and functions for Common Lisp."
+  :author "David Sorokin"
   :licence "MIT"
   :depends-on (bordeaux-threads)
   :components ((:file "trivial-lazy")
